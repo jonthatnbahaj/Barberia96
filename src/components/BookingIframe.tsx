@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, AlertCircle, Phone, Wifi, WifiOff, Shield, ExternalLink } from 'lucide-react';
+import { X, AlertCircle, Phone, Wifi, WifiOff, Shield, ExternalLink, RefreshCw } from 'lucide-react';
 import { businessConfig } from '../config/business';
 
 interface BookingIframeProps {
@@ -76,21 +76,24 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
     
     // Set a timeout to detect if iframe fails to load
     loadTimeoutRef.current = setTimeout(() => {
-      if (isLoading && loadAttempts < 3) {
-        console.log(`Load attempt ${loadAttempts + 1} timed out, retrying...`);
-        setLoadAttempts(prev => prev + 1);
-        handleRetry();
-      } else if (isLoading) {
-        console.log('All load attempts failed');
-        setHasError(true);
-        setIsLoading(false);
+      if (isLoading) {
+        console.log(`Load timeout reached for attempt ${loadAttempts + 1}`);
+        if (loadAttempts < 2) {
+          setLoadAttempts(prev => prev + 1);
+          handleRetry();
+        } else {
+          console.log('All load attempts failed');
+          setHasError(true);
+          setIsLoading(false);
+        }
       }
-    }, 10000); // 10 second timeout
+    }, 15000); // 15 second timeout
 
     // Calculate and set proper heights
     const updateHeights = () => {
       const vh = window.innerHeight;
-      const availableHeight = vh; // Full screen now
+      const headerHeight = 64; // Header height
+      const availableHeight = vh - headerHeight;
       
       if (containerRef.current) {
         containerRef.current.style.height = `${availableHeight}px`;
@@ -167,7 +170,7 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
       const newWindow = window.open(
         bookingUrl, 
         '_blank', 
-        'noopener,noreferrer,width=375,height=667,scrollbars=yes,resizable=yes'
+        'noopener,noreferrer,width=400,height=700,scrollbars=yes,resizable=yes'
       );
       
       setTimeout(() => {
@@ -182,34 +185,32 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
   };
 
   const handleRetry = () => {
-    console.log('Retrying iframe load...');
+    console.log(`Retrying iframe load... (attempt ${loadAttempts + 1})`);
     setIsLoading(true);
     setHasError(false);
     
-    // Reload iframe with cache busting
+    // Clear existing timeout
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+    }
+    
+    // Reload iframe with cache busting and retry parameters
     if (iframeRef.current) {
       const url = new URL(bookingUrl);
       url.searchParams.set('_t', Date.now().toString());
-      url.searchParams.set('_retry', loadAttempts.toString());
-      
-      // Add additional parameters to help with loading
-      url.searchParams.set('embedded', 'true');
-      url.searchParams.set('mobile', /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'true' : 'false');
+      url.searchParams.set('_retry', (loadAttempts + 1).toString());
       
       console.log('Loading URL:', url.toString());
       iframeRef.current.src = url.toString();
     }
   };
 
-  // Prepare the booking URL with proper parameters
+  // Prepare the booking URL with minimal parameters to avoid conflicts
   const prepareBookingUrl = () => {
     try {
       const url = new URL(bookingUrl);
       
-      // Add parameters to help with iframe loading
-      url.searchParams.set('embedded', 'true');
-      url.searchParams.set('iframe', 'true');
-      url.searchParams.set('mobile', /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'true' : 'false');
+      // Only add essential parameters
       url.searchParams.set('_t', Date.now().toString());
       
       console.log('Prepared booking URL:', url.toString());
@@ -220,16 +221,11 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
     }
   };
 
-  // Handle postMessage for dynamic height and communication
+  // Handle postMessage for iframe communication
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Security: Only accept messages from booking system domain
-      try {
-        const bookingDomain = new URL(bookingUrl).hostname;
-        if (!event.origin.includes(bookingDomain)) return;
-      } catch {
-        return;
-      }
+      // Security: Only accept messages from BokaDirekt
+      if (!event.origin.includes('bokadirekt.se')) return;
       
       try {
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
@@ -238,20 +234,17 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
         
         // Handle different message types
         if (data?.type === 'iframe_loaded') {
-          console.log('Iframe reports it has loaded');
           setIsLoading(false);
           setHasError(false);
         }
         
         if (data?.type === 'iframe_error') {
-          console.log('Iframe reports an error');
           setHasError(true);
           setIsLoading(false);
         }
         
         if (data?.type === 'booking_complete') {
           console.log('Booking completed successfully');
-          // Could show success message or close iframe
         }
       } catch (error) {
         console.log('Error parsing postMessage:', error);
@@ -260,13 +253,13 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [bookingUrl]);
+  }, []);
 
   // Animation variants
   const modalVariants = {
     hidden: { 
       opacity: 0,
-      scale: 0.9
+      scale: 0.95
     },
     visible: { 
       opacity: 1,
@@ -275,12 +268,12 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
         type: "spring",
         stiffness: 300,
         damping: 30,
-        duration: 0.5
+        duration: 0.4
       }
     },
     exit: { 
       opacity: 0,
-      scale: 0.9,
+      scale: 0.95,
       transition: {
         duration: 0.3
       }
@@ -304,16 +297,16 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
   return (
     <AnimatePresence>
       <motion.div 
-        className="iframe-modal fixed inset-0 bg-black bg-opacity-90 flex flex-col"
+        className="iframe-modal fixed inset-0 bg-black bg-opacity-95 flex flex-col"
         variants={modalVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
         style={{ zIndex: 2147483647 }}
       >
-        {/* Floating Header */}
+        {/* Beautiful Floating Header */}
         <motion.div 
-          className="iframe-modal-header bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white px-4 py-3 flex items-center justify-between shadow-2xl relative h-16 flex-shrink-0 border-b border-brand-accent"
+          className="iframe-modal-header bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white px-6 py-4 flex items-center justify-between shadow-2xl relative h-16 flex-shrink-0 border-b-2 border-brand-accent"
           variants={headerVariants}
           style={{ zIndex: 2147483646 }}
         >
@@ -321,13 +314,13 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
             <motion.img 
               src={businessConfig.logo} 
               alt="Logo" 
-              className="w-8 h-8 mr-3 rounded-full bg-white p-1 flex-shrink-0"
+              className="w-10 h-10 mr-4 rounded-full bg-white p-1 flex-shrink-0 shadow-lg"
               whileHover={{ rotate: 360, scale: 1.1 }}
               transition={{ duration: 0.6 }}
             />
             <div className="min-w-0 flex-1">
               <motion.h2 
-                className="font-bold text-sm truncate"
+                className="font-bold text-lg truncate text-brand-accent"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -335,18 +328,18 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                 Secure Booking
               </motion.h2>
               <motion.p 
-                className="text-xs opacity-90 flex items-center truncate"
+                className="text-sm opacity-90 flex items-center truncate"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 0.9 }}
                 transition={{ delay: 0.3 }}
               >
-                <Shield size={12} className="mr-1 flex-shrink-0" />
+                <Shield size={14} className="mr-2 flex-shrink-0" />
                 <span className="truncate">{serviceName}</span>
               </motion.p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-3 flex-shrink-0 ml-2">
+          <div className="flex items-center space-x-3 flex-shrink-0 ml-4">
             {/* Online/Offline indicator */}
             <motion.div 
               className="flex items-center"
@@ -361,11 +354,28 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
               }}
             >
               {isOnline ? (
-                <Wifi size={16} className="text-green-300" />
+                <Wifi size={18} className="text-green-300" />
               ) : (
-                <WifiOff size={16} className="text-red-300" />
+                <WifiOff size={18} className="text-red-300" />
               )}
             </motion.div>
+
+            {/* Retry button */}
+            {hasError && (
+              <motion.button
+                onClick={handleRetry}
+                className="p-2 hover:bg-black hover:bg-opacity-20 rounded-full transition-colors flex-shrink-0"
+                aria-label="Retry loading"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                title="Retry loading"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <RefreshCw size={18} />
+              </motion.button>
+            )}
 
             {/* External link button */}
             <motion.button
@@ -376,19 +386,19 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
               whileTap={{ scale: 0.9 }}
               title="Open in browser"
             >
-              <ExternalLink size={16} />
+              <ExternalLink size={18} />
             </motion.button>
 
             {/* Close button */}
             <motion.button
               onClick={onClose}
-              className="p-2 hover:bg-black hover:bg-opacity-20 rounded-full transition-colors flex-shrink-0"
+              className="p-2 hover:bg-red-600 hover:bg-opacity-20 rounded-full transition-colors flex-shrink-0"
               aria-label="Close booking"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              <X size={18} />
+              <X size={20} />
             </motion.button>
           </div>
         </motion.div>
@@ -407,18 +417,18 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.3 }}
         >
-          {/* Loading State */}
+          {/* Beautiful Loading State */}
           <AnimatePresence>
             {isLoading && (
               <motion.div 
-                className="absolute inset-0 flex items-center justify-center bg-white z-10"
+                className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white z-10"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <div className="text-center px-4">
+                <div className="text-center px-6">
                   <motion.div 
-                    className="w-12 h-12 border-b-2 border-gray-900 rounded-full mx-auto mb-4"
+                    className="w-16 h-16 border-4 border-gray-200 border-t-brand-accent rounded-full mx-auto mb-6"
                     animate={{ rotate: 360 }}
                     transition={{ 
                       duration: 1,
@@ -426,8 +436,8 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                       ease: "linear"
                     }}
                   />
-                  <motion.p 
-                    className="text-gray-600 text-base font-medium"
+                  <motion.h3 
+                    className="text-xl font-bold text-gray-800 mb-2"
                     animate={{ opacity: [0.5, 1, 0.5] }}
                     transition={{ 
                       duration: 1.5,
@@ -435,40 +445,40 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                       ease: "easeInOut"
                     }}
                   >
-                    Loading secure booking...
-                  </motion.p>
+                    Loading Booking System
+                  </motion.h3>
                   <motion.p 
-                    className="text-gray-400 text-sm mt-2"
+                    className="text-gray-600 text-base mb-4"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
                   >
-                    Connecting to booking system
+                    Connecting to secure booking platform...
                   </motion.p>
                   {loadAttempts > 0 && (
-                    <motion.p 
-                      className="text-gray-500 text-xs mt-2"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                    <motion.div 
+                      className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800 text-sm"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
                     >
-                      Attempt {loadAttempts + 1} of 3
-                    </motion.p>
+                      Retry attempt {loadAttempts + 1} of 3
+                    </motion.div>
                   )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Offline State */}
+          {/* Beautiful Offline State */}
           <AnimatePresence>
             {!isOnline && (
               <motion.div 
-                className="absolute inset-0 flex items-center justify-center bg-white z-20 p-4"
+                className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-white z-20 p-6"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
               >
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-md">
                   <motion.div
                     animate={{ 
                       rotate: [0, -10, 10, 0],
@@ -480,26 +490,26 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                       ease: "easeInOut"
                     }}
                   >
-                    <WifiOff size={48} className="text-gray-400 mx-auto mb-4" />
+                    <WifiOff size={64} className="text-red-400 mx-auto mb-6" />
                   </motion.div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
                     No Internet Connection
                   </h3>
-                  <p className="text-gray-600 mb-6 text-base">
-                    Check your internet connection and try again.
+                  <p className="text-gray-600 mb-8 text-lg">
+                    Please check your internet connection and try again.
                   </p>
                   <div className="space-y-4">
                     <motion.button
                       onClick={handleRetry}
-                      className="w-full bg-gray-900 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors disabled:opacity-50"
+                      className="w-full bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition-colors disabled:opacity-50 text-lg"
                       disabled={!isOnline}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       Try Again
                     </motion.button>
-                    <div className="flex items-center justify-center text-gray-600">
-                      <Phone size={18} className="mr-2" />
+                    <div className="flex items-center justify-center text-gray-600 text-lg">
+                      <Phone size={20} className="mr-3" />
                       <span>Call: {businessConfig.phone}</span>
                     </div>
                   </div>
@@ -508,16 +518,16 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
             )}
           </AnimatePresence>
 
-          {/* Error State */}
+          {/* Beautiful Error State */}
           <AnimatePresence>
             {hasError && isOnline && (
               <motion.div 
-                className="absolute inset-0 flex items-center justify-center bg-white z-10 p-4"
+                className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-50 to-white z-10 p-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-md">
                   <motion.div
                     animate={{ 
                       scale: [1, 1.1, 1],
@@ -529,18 +539,18 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                       ease: "easeInOut"
                     }}
                   >
-                    <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+                    <AlertCircle size={64} className="text-orange-500 mx-auto mb-6" />
                   </motion.div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">
-                    Could Not Load Booking
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                    Booking System Unavailable
                   </h3>
-                  <p className="text-gray-600 mb-6 text-base">
+                  <p className="text-gray-600 mb-8 text-lg">
                     The booking system is temporarily unavailable. You can try again or open it in your browser.
                   </p>
                   <div className="space-y-4">
                     <motion.button
                       onClick={handleRetry}
-                      className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-700 transition-colors"
+                      className="w-full bg-orange-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors text-lg"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -548,14 +558,14 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                     </motion.button>
                     <motion.button
                       onClick={handleFallbackBooking}
-                      className="w-full bg-gray-900 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors"
+                      className="w-full bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-colors text-lg"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       Open in Browser
                     </motion.button>
-                    <div className="flex items-center justify-center text-gray-600">
-                      <Phone size={18} className="mr-2" />
+                    <div className="flex items-center justify-center text-gray-600 text-lg">
+                      <Phone size={20} className="mr-3" />
                       <span>Or call: {businessConfig.phone}</span>
                     </div>
                   </div>
@@ -564,12 +574,12 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
             )}
           </AnimatePresence>
 
-          {/* Full-Screen Iframe */}
+          {/* Full-Screen Iframe with Beautiful Design */}
           {isOnline && (
             <motion.iframe
               ref={iframeRef}
               src={prepareBookingUrl()}
-              className="w-full border-0 bg-white block"
+              className="w-full border-0 bg-white block rounded-t-2xl shadow-2xl"
               style={{ 
                 height: '100%',
                 minHeight: '100%',
@@ -578,17 +588,17 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                 WebkitOverflowScrolling: 'touch',
                 overflow: 'auto'
               }}
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-downloads"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-downloads allow-modals"
               scrolling="auto"
               onLoad={handleIframeLoad}
               onError={handleIframeError}
               title={`Secure booking - ${serviceName}`}
               loading="eager"
-              allow="payment; geolocation; camera; microphone"
+              allow="payment; geolocation; camera; microphone; fullscreen"
               referrerPolicy="strict-origin-when-cross-origin"
               aria-label={`Booking form for ${serviceName}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isLoading ? 0 : 1 }}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: isLoading ? 0 : 1, scale: isLoading ? 0.98 : 1 }}
               transition={{ duration: 0.5 }}
             />
           )}
