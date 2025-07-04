@@ -326,9 +326,9 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
           className="iframe-container flex-1 relative bg-white overflow-hidden"
           onTouchStart={handleTouchStart}
           style={{ 
-            height: 'calc(100vh - 48px - 80px)', // 48px header + 80px navigation space
-            maxHeight: 'calc(100vh - 48px - 80px)',
-            minHeight: 'calc(100vh - 48px - 80px)',
+            height: 'calc(100vh - 48px)',
+            maxHeight: 'calc(100vh - 48px)',
+            minHeight: 'calc(100vh - 48px)',
             zIndex: 999998
           }}
           initial={{ opacity: 0 }}

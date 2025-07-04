@@ -5,7 +5,7 @@ import BookingIframe from './BookingIframe';
 import { serviceCategories, type Service } from '../config/business';
 
 const BookingView: React.FC = () => {
-  const [expandedCategory, setExpandedCategory] = useState<string | null>('Klippningar');
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const toggleCategory = (categoryTitle: string) => {
@@ -13,16 +13,6 @@ const BookingView: React.FC = () => {
   };
 
   const handleBookingClick = (service: Service) => {
-    // Check if we're on mobile/tablet
-    const isMobileOrTablet = window.innerWidth <= 1024;
-    
-    if (!isMobileOrTablet) {
-      // Desktop: Open in new tab
-      window.open(service.bookingUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    
-    // Mobile/Tablet: Use iframe modal
     setSelectedService(service);
   };
 
