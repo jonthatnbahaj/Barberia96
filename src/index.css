@@ -4,6 +4,31 @@
 
 /* CRITICAL Z-INDEX HIERARCHY - INDUSTRY LEADING PWA STANDARDS */
 
+/* NAVIGATION HIDING ANIMATIONS */
+.hidden-for-iframe {
+  transform: translateY(100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.main-header.hidden-for-iframe {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.bottom-navigation {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease !important;
+}
+
+.bottom-navigation.hidden-for-iframe {
+  transform: translateY(100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* 1. IFRAME MODAL - ABSOLUTE HIGHEST PRIORITY (Level 1000000+) */
 .iframe-modal {
   z-index: 2147483647 !important; /* Maximum possible z-index value */

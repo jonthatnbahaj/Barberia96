@@ -98,28 +98,28 @@ export const serviceCategories: ServiceCategory[] = [
         name: "Barn Klippning (0–12 år)",
         duration: "25 min",
         price: "249 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/barn-klippning-o-12-ar-1114691",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Professionell klippning för barn"
       },
       {
         name: "Klippning",
         duration: "30 min",
         price: "329 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/klippning-1112349",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Klassisk herrklippning"
       },
       {
         name: "Senior Klippning",
         duration: "25 min",
         price: "279 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/senior-klippning-1114692",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Specialpris för seniorer"
       },
       {
         name: "Student Klippning",
         duration: "30 min",
         price: "279 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/student-klippning-1114687",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Studentpris med giltig legitimation"
       }
     ]
@@ -131,14 +131,14 @@ export const serviceCategories: ServiceCategory[] = [
         name: "Klippning & Skäggtrimning",
         duration: "60 min",
         price: "499 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/klippning-skaggtrimning-1114693",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Komplett behandling med klippning och skäggtrim"
       },
       {
         name: "Klippning & Skäggtrimning (Student)",
         duration: "60 min",
         price: "449 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/klippning-skaggtrimning-student-2022071",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Studentpris för komplett behandling"
       }
     ]
@@ -150,21 +150,21 @@ export const serviceCategories: ServiceCategory[] = [
         name: "Skäggtrimning – Kort Skägg (upp till 4 cm)",
         duration: "30 min",
         price: "249 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/skagg-trim-kort-skagg-4-cm-1324014",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Professionell trimning av kort skägg"
       },
       {
         name: "Skäggtrimning – Långt Skägg (över 4 cm)",
         duration: "30 min",
         price: "299 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/skagg-trim-langt-skagg-over-4-cm-1357365",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Specialbehandling för längre skägg"
       },
       {
         name: "Styling",
         duration: "15 min",
         price: "149 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/styling-1652900",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Professionell styling av hår"
       }
     ]
@@ -176,7 +176,7 @@ export const serviceCategories: ServiceCategory[] = [
         name: "Snaggning",
         duration: "15 min",
         price: "170 kr",
-        bookingUrl: "https://www.bokadirekt.se/boka-tjanst/barberaria-96-35693/snaggning-1114694",
+        bookingUrl: "https://www.bokadirekt.se/places/barberaria-96-35693",
         description: "Klassisk snaggning"
       }
     ]

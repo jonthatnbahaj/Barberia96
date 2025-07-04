@@ -117,7 +117,7 @@ const MainPage: React.FC = () => {
       <AnimatePresence mode="wait">
         {activeTab === 'boka' && (
           <motion.div 
-            className="bg-brand-primary text-white py-4 px-4 shadow-lg sticky top-0 z-40 border-b border-brand-accent"
+            className="main-header bg-brand-primary text-white py-4 px-4 shadow-lg sticky top-0 z-40 border-b border-brand-accent"
             variants={headerVariants}
             initial="hidden"
             animate="visible"
