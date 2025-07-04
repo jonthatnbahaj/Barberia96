@@ -136,18 +136,15 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
 
   return (
     <motion.div 
-      className="fixed bottom-0 left-0 right-0 bottom-navigation"
+      className="fixed bottom-0 left-0 right-0 bottom-navigation bg-white/95 backdrop-blur-sm border-t border-gray-200"
       style={{ zIndex: 100000 }} // Second highest priority after iframe
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* Clean background */}
+      {/* Navigation container */}
       <div className="relative">
-        <div className="absolute inset-0 bg-white/95 backdrop-blur-sm border-t border-gray-200" />
-        
-        {/* Navigation container */}
-        <div className="relative flex max-w-4xl mx-auto px-4 py-3">
+        <div className="flex max-w-4xl mx-auto px-4 py-3">
           
           {/* Om Oss */}
           <motion.div className="flex-1 flex justify-center">

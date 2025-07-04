@@ -323,12 +323,12 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
         {/* Full-Screen Content Area with enhanced animations */}
         <motion.div 
           ref={containerRef}
-          className="iframe-container flex-1 relative bg-white overflow-hidden"
+          className="iframe-container flex-1 relative bg-white overflow-hidden tablet-mobile-bottom-limit"
           onTouchStart={handleTouchStart}
           style={{ 
-            height: 'calc(100vh - 48px)',
-            maxHeight: 'calc(100vh - 48px)',
-            minHeight: 'calc(100vh - 48px)',
+            height: 'calc(100vh - 128px)', // 48px header + 80px navigation space
+            maxHeight: 'calc(100vh - 128px)',
+            minHeight: 'calc(100vh - 128px)',
             zIndex: 999998
           }}
           initial={{ opacity: 0 }}

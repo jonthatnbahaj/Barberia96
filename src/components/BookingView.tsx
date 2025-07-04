@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import BookingIframe from './BookingIframe';
 import { serviceCategories, type Service } from '../config/business';
 
 const BookingView: React.FC = () => {
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>('Klippningar');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const toggleCategory = (categoryTitle: string) => {
@@ -61,7 +61,7 @@ const BookingView: React.FC = () => {
   return (
     <>
       <motion.div 
-        className="p-4 max-w-4xl mx-auto space-y-4"
+        className="p-4 max-w-4xl mx-auto space-y-4 pb-24"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -86,6 +86,13 @@ const BookingView: React.FC = () => {
                 whileTap={{ scale: 0.99 }}
               >
                 <div className="flex items-center">
+                  <motion.div
+                    className="w-10 h-10 bg-brand-primary rounded-full flex items-center justify-center mr-3"
+                    whileHover={{ scale: 1.1, backgroundColor: "#d4af37" }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Calendar size={18} className="text-brand-accent" />
+                  </motion.div>
                   <div className="text-left">
                     <motion.h4 
                       className="text-base font-bold text-brand-primary"
