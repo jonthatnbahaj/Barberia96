@@ -302,13 +302,25 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
         initial="hidden"
         animate="visible"
         exit="exit"
-        style={{ zIndex: 2147483647 }}
+        style={{ 
+          zIndex: 999999999,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh'
+        }}
       >
         {/* Beautiful Floating Header */}
         <motion.div 
           className="iframe-modal-header bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white px-6 py-4 flex items-center justify-between shadow-2xl relative h-16 flex-shrink-0 border-b-2 border-brand-accent"
           variants={headerVariants}
-          style={{ zIndex: 2147483646 }}
+          style={{ 
+            zIndex: 999999998,
+            position: 'relative'
+          }}
         >
           <div className="flex items-center min-w-0 flex-1">
             <motion.img 
@@ -411,7 +423,8 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
             height: 'calc(100vh - 64px)',
             maxHeight: 'calc(100vh - 64px)',
             minHeight: 'calc(100vh - 64px)',
-            zIndex: 2147483645
+            zIndex: 999999997,
+            position: 'relative'
           }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -584,9 +597,10 @@ const BookingIframe: React.FC<BookingIframeProps> = ({ bookingUrl, serviceName, 
                 height: '100%',
                 minHeight: '100%',
                 maxHeight: '100%',
-                zIndex: 2147483644,
+                zIndex: 999999996,
                 WebkitOverflowScrolling: 'touch',
-                overflow: 'auto'
+                overflow: 'auto',
+                position: 'relative'
               }}
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-downloads allow-modals"
               scrolling="auto"
