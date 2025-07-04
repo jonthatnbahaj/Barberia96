@@ -229,10 +229,10 @@ body {
 /* Mobile viewport optimizations - Ensure iframe reaches bottom */
 @media screen and (max-width: 768px) {
   .iframe-container {
-    /* Mobile-specific optimizations - exact height calculations */
-    height: calc(100vh - 48px) !important;
-    min-height: calc(100vh - 48px) !important;
-    max-height: calc(100vh - 48px) !important;
+    /* Mobile-specific optimizations - exact height calculations with navigation space */
+    height: calc(100vh - 48px - 80px) !important; /* 48px header + 80px navigation */
+    min-height: calc(100vh - 48px - 80px) !important;
+    max-height: calc(100vh - 48px - 80px) !important;
     /* Ensure no extra spacing */
     padding: 0;
     margin: 0;
@@ -263,13 +263,39 @@ body {
   }
 }
 
+/* Tablet viewport optimizations */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .iframe-container {
+    /* Tablet-specific optimizations - exact height calculations with navigation space */
+    height: calc(100vh - 48px - 80px) !important; /* 48px header + 80px navigation */
+    min-height: calc(100vh - 48px - 80px) !important;
+    max-height: calc(100vh - 48px - 80px) !important;
+    /* Ensure no extra spacing */
+    padding: 0;
+    margin: 0;
+  }
+  
+  .iframe-container iframe {
+    /* Tablet iframe optimizations */
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    /* Prevent horizontal scrolling on tablet */
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Ensure exact positioning */
+    position: relative;
+    display: block;
+  }
+}
+
 /* Landscape orientation optimizations */
 @media screen and (orientation: landscape) and (max-height: 500px) {
   .iframe-container {
-    /* Landscape mode - ensure iframe still reaches bottom */
-    height: calc(100vh - 48px) !important;
-    min-height: calc(100vh - 48px) !important;
-    max-height: calc(100vh - 48px) !important;
+    /* Landscape mode - ensure iframe still reaches bottom with navigation space */
+    height: calc(100vh - 48px - 80px) !important;
+    min-height: calc(100vh - 48px - 80px) !important;
+    max-height: calc(100vh - 48px - 80px) !important;
   }
   
   .iframe-container iframe {
@@ -315,9 +341,9 @@ iframe[title] {
 @media screen and (max-height: 500px) {
   /* When keyboard is likely visible */
   .iframe-container {
-    /* Adjust for keyboard presence */
-    height: calc(100vh - 48px) !important;
-    min-height: calc(100vh - 48px) !important;
+    /* Adjust for keyboard presence with navigation space */
+    height: calc(100vh - 48px - 80px) !important;
+    min-height: calc(100vh - 48px - 80px) !important;
   }
   
   .iframe-container iframe {
@@ -340,10 +366,10 @@ iframe[title] {
 @supports (-webkit-touch-callout: none) {
   /* iOS Safari viewport height fix */
   .iframe-container {
-    /* Use fixed pixel calculation instead of vh on iOS */
-    height: calc(100vh - 48px) !important;
-    min-height: calc(100vh - 48px) !important;
-    max-height: calc(100vh - 48px) !important;
+    /* Use fixed pixel calculation instead of vh on iOS with navigation space */
+    height: calc(100vh - 48px - 80px) !important;
+    min-height: calc(100vh - 48px - 80px) !important;
+    max-height: calc(100vh - 48px - 80px) !important;
   }
 }
 
